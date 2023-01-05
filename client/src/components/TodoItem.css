@@ -1,0 +1,25 @@
+.todo-item {
+    margin-bottom: 20px;
+    width: 50%;
+    border: 1px solid #1E90FF;
+    border-radius: 15px;
+    padding: 15px;
+    min-height: 50px;
+    display: flex;
+    gap: 10px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.todo-text-container {
+    display: inline-block;
+    text-align: left;
+    margin-right: auto;
+}
+
+.todo-text {
+    word-break: break-all;
+    white-space: pre-line;
+    padding: 5px;
+}

@@ -1,0 +1,29 @@
+.App-container {
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.App-section1 {
+  margin-top: 30px;
+}
+
+.App-section2 {
+  width: 100%;
+  margin-top: 40px;
+  text-align: center;
+}
+
+
+
+#todo-input {
+  width: 360px;
+}
+
+#add-todo-button {
+  margin-top: 5px;
+}
+

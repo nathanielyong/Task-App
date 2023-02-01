@@ -10,7 +10,7 @@ const TodoList = (props) => {
           {
             props.todoList.map((todoItem) => (
               <TodoItem 
-                todoItem={todoItem} key={todoItem.id} delete={props.delete} edit={props.edit} complete={props.complete} uncomplete={props.uncomplete} completed={props.completed}
+                todoItem={todoItem} key={todoItem.id} delete={props.delete} edit={props.edit} complete={props.complete} completed={props.completed}
               />
             ))
           }

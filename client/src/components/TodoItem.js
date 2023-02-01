@@ -13,6 +13,7 @@ const TodoItem = (props) => {
 
   const saveEdit = (e) => {
     e.preventDefault();
+    textRef.current.blur();
     props.edit(e, props.todoItem.id, text, props.completed);
   }
 
@@ -20,21 +21,39 @@ const TodoItem = (props) => {
     textRef.current.focus();
   }
 
-  const handleChange = (e) => {
-    if (e.target.checked) {
-      props.complete(props.todoItem.id);
-    } else {
-      props.uncomplete(props.todoItem.id);
+  const handleCheckbox = (e) => {
+    props.complete(props.todoItem.id);
+  }
+
+  const handleInput = (e) => {
+    if (e.currentTarget.textContent.length > 1000) {
+      textRef.current.textContent = text;
+      const range = document.createRange();
+      range.selectNodeContents(textRef.current);
+      range.collapse(false);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+    else 
+      setText(e.currentTarget.textContent);
+  }
+
+  const handleSubmit = (e) => {
+    if (e.keyCode === 13 && !e.shiftKey) {
+      e.preventDefault();
+      saveEdit(e);
     }
   }
+
   return (
     <>
       <li className='todo-item'>
-        <Checkbox icon={<RadioButtonUncheckedIcon color='primary' />} checkedIcon={<CheckCircleIcon color='primary' />} defaultChecked={props.completed} onChange={e => handleChange(e)} />
+        <Checkbox icon={<RadioButtonUncheckedIcon color='primary' />} checkedIcon={<CheckCircleIcon color='primary' />} defaultChecked={props.completed} onChange={handleCheckbox} />
         <div className="todo-text-container">
-          <p ref={textRef} className="todo-text" contentEditable suppressContentEditableWarning={true} style={props.completed ? { textDecoration: 'line-through' } : {}} onInput={e => setText(e.currentTarget.textContent)} onClick={() => editItem()} onBlur={e => saveEdit(e)}>{props.todoItem.text}</p>
+          <p ref={textRef} className="todo-text" contentEditable suppressContentEditableWarning={true} style={props.completed ? { textDecoration: 'line-through' } : {}} onInput={handleInput} onClick={editItem} onBlur={saveEdit} onKeyDown={handleSubmit}>{props.todoItem.text}</p>
         </div>
-        <IconButton className="button" variant="contained" color="success" onClick={() => editItem()}><EditOutlinedIcon /></IconButton>
+        <IconButton className="button" variant="contained" color="success" onClick={editItem}><EditOutlinedIcon /></IconButton>
         <IconButton className="button" variant="contained" color="error" onClick={() => props.delete(props.todoItem.id, props.completed)}><DeleteOutlinedIcon /></IconButton>
       </li>
     </>

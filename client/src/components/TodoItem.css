@@ -20,6 +20,6 @@
 
 .todo-text {
     word-break: break-all;
-    white-space: pre-line;
+    white-space: pre-wrap;
     padding: 5px;
 }

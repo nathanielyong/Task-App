@@ -1,140 +1,19 @@
-import React, { useState, useRef, useEffect } from 'react';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import TodoList from './components/TodoList';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import TodoApp from './components/TodoApp';
+import Navbar from './components/Navbar';
 import './App.css';
 
 function App() {
-  const [todoItems, setTodoItems] = useState([]);
-  const [text, setText] = useState('');
-  const [error, setError] = useState(null);
-  const inputRef = useRef();
-
-  useEffect(() => {
-    fetchTodoItems();
-  }, []);
-
-  const fetchTodoItems = async () => {
-    const response = await fetch(`http://localhost:5000/todoList/`);
-    if (!response.ok) {
-      const message = `An error occurred: ${response.statusText}`;
-      window.alert(message);
-      return;
-    }
-
-    const json = await response.json();
-    setTodoItems(json);
-  }
-
-  const editTodoHandler = async (e, id, newText, completed) => {
-    e.preventDefault();
-
-    const index = todoItems.findIndex(todo => todo.id === id);
-    let items = [...todoItems];
-    let item = items[index];
-    item.text = newText;
-    items[index] = item;
-    setTodoItems(items);
-
-    await fetch(`http://localhost:5000/todoList/update/${id}/`, {
-      method: "PUT",
-      body: JSON.stringify({ text: newText, completed: completed }),
-      headers: {
-        'Content-Type': 'application/json'
-      },
-    }).catch(error => {
-      window.alert(error);
-      return;
-    });
-  }
-
-  const deleteTodoHandler = async (id) => {
-    setTodoItems([...todoItems].filter(todo => todo.id !== id));
-    await fetch(`http://localhost:5000/todoList/delete/${id}/`, {
-      method: "DELETE"
-    }).catch(error => {
-      window.alert(error);
-      return;
-    });
-  }
-
-  const newTodoHandler = async (e) => {
-    e.preventDefault();
-    e.target.reset();
-    inputRef.current.focus();
-
-    const newItem = { id: Date.now(), text: text.trim(), date: Date.now(), completed: false };
-    setTodoItems([newItem, ...todoItems]);
-
-    await fetch(`http://localhost:5000/todoList/add/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newItem),
-    }).catch(error => {
-      window.alert(error);
-      return;
-    });
-
-    setText('');
-    setError(null);
-  }
-
-  const completeTodoHandler = async (id) => {
-    const index = todoItems.findIndex(todo => todo.id === id);
-    let items = [...todoItems];
-    let item = items[index];
-    item.completed = !item.completed;
-    items[index] = item;
-    setTodoItems(items);
-
-    await fetch(`http://localhost:5000/todoList/update/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(item)
-    });
-  }
-
-  const todoList = todoItems.filter(todo => !todo.completed);
-  let content = <p>No TODO items added yet!</p>;
-  if (error) {
-    content = <p style={{ color: 'red' }}>{error}</p>;
-  } else if (todoItems.length > 0) {
-    content = <TodoList todoList={todoList} delete={deleteTodoHandler} edit={editTodoHandler} complete={completeTodoHandler} completed={false} className="todo-list" />;
-  }
-
-  const completedList = todoItems.filter(todo => todo.completed);
-  let content2 = <p></p>;
-  if (error) {
-    content2 = <p style={{ color: 'red' }}>{error}</p>;
-  } else if (todoItems.length > 0) {
-    content2 = <TodoList todoList={completedList} delete={deleteTodoHandler} edit={editTodoHandler} complete={completeTodoHandler} completed={true} className="todo-list" />;
-  }
 
   return (
     <>
-      <nav></nav>
-      <div className="App-container">
-        <section className='App-section1'>
-          <form onSubmit={e => newTodoHandler(e)} id="add-todo-form" >
-            <TextField inputRef={inputRef} type='text' id='todo-input' onInput={e => setText(e.target.value)} variant="outlined" multiline minRows={5} maxRows={10}
-              placeholder='Enter new TODO item' inputProps={{ maxLength: 1000 }} autoFocus required />
-            <br></br>
-            <Button id='add-todo-button' variant="contained" color="primary" type="submit" form="add-todo-form">Add TODO</Button>
-          </form>
-        </section>
-        <section className='App-section2'>
-          <u><h2>Todo List</h2></u>
-          {content}
-        </section>
-        <section className='App-section2'>
-          <u><h2>Completed Tasks</h2></u>
-          {content2}
-        </section>
-      </div>
+      <Router>
+        <Navbar />
+        <Routes>
+          <Route path='/' element={<TodoApp />} />
+        </Routes>
+      </Router>
     </>
   );
 }

@@ -14,7 +14,7 @@ const TodoItem = (props) => {
   const saveEdit = (e) => {
     e.preventDefault();
     textRef.current.blur();
-    props.edit(e, props.todoItem.id, text, props.completed);
+    props.edit(e, props.todoItem._id, text, props.todoItem.completed);
   }
 
   const editItem = () => {
@@ -22,7 +22,7 @@ const TodoItem = (props) => {
   }
 
   const handleCheckbox = (e) => {
-    props.complete(props.todoItem.id);
+    props.complete(props.todoItem._id);
   }
 
   const handleInput = (e) => {
@@ -49,12 +49,12 @@ const TodoItem = (props) => {
   return (
     <>
       <li className='todo-item'>
-        <Checkbox icon={<RadioButtonUncheckedIcon color='primary' />} checkedIcon={<CheckCircleIcon color='primary' />} defaultChecked={props.completed} onChange={handleCheckbox} />
+        <Checkbox icon={<RadioButtonUncheckedIcon color='primary' />} checkedIcon={<CheckCircleIcon color='primary' />} defaultChecked={props.todoItem.completed} onChange={handleCheckbox} />
         <div className="todo-text-container">
-          <p ref={textRef} className="todo-text" contentEditable suppressContentEditableWarning={true} style={props.completed ? { textDecoration: 'line-through' } : {}} onInput={handleInput} onClick={editItem} onBlur={saveEdit} onKeyDown={handleSubmit}>{props.todoItem.text}</p>
+          <p ref={textRef} className="todo-text" contentEditable suppressContentEditableWarning={true} style={props.todoItem.completed ? { textDecoration: 'line-through' } : {}} onInput={handleInput} onClick={editItem} onBlur={saveEdit} onKeyDown={handleSubmit}>{props.todoItem.text}</p>
         </div>
         <IconButton className="button" variant="contained" color="success" onClick={editItem}><EditOutlinedIcon /></IconButton>
-        <IconButton className="button" variant="contained" color="error" onClick={() => props.delete(props.todoItem.id, props.completed)}><DeleteOutlinedIcon /></IconButton>
+        <IconButton className="button" variant="contained" color="error" onClick={() => props.delete(props.todoItem._id, props.todoItem.completed)}><DeleteOutlinedIcon /></IconButton>
       </li>
     </>
   )

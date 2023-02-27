@@ -1,55 +1,51 @@
 const express = require("express");
-const todoListRoutes = express.Router();
+const TodoItem = require("../models/TodoItem");
+const router = express.Router();
+const authMiddleware = require('../utils/authMiddleware.js');
 
-const dbo = require("../db/conn");
-
-todoListRoutes.route("/todoList").get((req, res) => {
-    let db_connect = dbo.getDb("todos");
-    db_connect
-        .collection("todo_list")
-        .find()
-        .sort({ id: -1 })
-        .toArray((err, result) => {
-        if (err) throw err;
-        res.json(result);
-    });
+router.route("/todoList").get(authMiddleware, async (req, res) => {
+    const todoItems = await TodoItem.find({}).sort({ date: -1 });
+    try {
+        res.send(todoItems);
+    } catch (error) {
+        res.status(500).send(error);
+    }
 });
 
-todoListRoutes.route("/todoList/add").post((req, response) => {
-    let db_connect = dbo.getDb();
-    let todo = {
-        id: req.body.id,
-        text: req.body.text,
-        completed: req.body.completed
-    };
-    db_connect.collection("todo_list").insertOne(todo, (err, res) => {
-        if (err) throw err;
-        response.json(res);
-    });
+router.route("/todoList/:id").get(authMiddleware, async (req, res) => {
+    const todoItem = await TodoItem.findById(req.params.id);
+    try {
+        res.send(todoItem);
+    } catch (error) {
+        res.status(500).send(error);
+    }
 });
 
-todoListRoutes.route("/todoList/delete/:id").delete((req, response) => {
-    let db_connect = dbo.getDb();
-    let query = { id: parseInt(req.params.id) }
-    db_connect.collection("todo_list").deleteOne(query, (err, res) => {
-        if (err) throw err;
-        response.json(res);
-    });
+router.route("/todoList/add").post(authMiddleware, async (req, res) => {
+    const newItem = new TodoItem(req.body);
+    try {
+        const savedItem = await newItem.save();
+        res.send(savedItem);
+    } catch (error) {
+        res.status(500).send(error);
+    }
 });
 
-todoListRoutes.route("/todoList/update/:id").put((req, response) => {
-    let db_connect = dbo.getDb();
-    let new_values = {
-        $set: {
-            text: req.body.text,
-            completed: req.body.completed
-        },
-    };
-    let query = { id: parseInt(req.params.id) };
-    db_connect.collection("todo_list").updateOne(query, new_values, (err, res) => {
-        if (err) throw err;
-        response.json(res);
-    });
+router.route("/todoList/delete/:id").delete(authMiddleware, async (req, res) => {
+    try {
+        await TodoItem.findByIdAndDelete(req.params.id);
+    } catch (error) {
+        res.status(500).send(error);
+    }
 });
 
-module.exports = todoListRoutes;
+router.route("/todoList/update/:id").put(authMiddleware, async (req, res) => {
+    try {
+        const todoItem = await TodoItem.findByIdAndUpdate(req.params.id, req.body);
+        res.send(todoItem);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
+
+module.exports = router;

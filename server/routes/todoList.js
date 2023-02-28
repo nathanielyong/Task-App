@@ -4,7 +4,7 @@ const router = express.Router();
 const authMiddleware = require('../utils/authMiddleware.js');
 
 router.route("/todoList").get(authMiddleware, async (req, res) => {
-    const todoItems = await TodoItem.find({}).sort({ date: -1 });
+    const todoItems = await TodoItem.find({ user: req.user.id }).sort({ date: -1 });
     try {
         res.send(todoItems);
     } catch (error) {
@@ -22,7 +22,7 @@ router.route("/todoList/:id").get(authMiddleware, async (req, res) => {
 });
 
 router.route("/todoList/add").post(authMiddleware, async (req, res) => {
-    const newItem = new TodoItem(req.body);
+    const newItem = new TodoItem({ text: req.body.text, date: req.body.date, user: req.user.id, completed: req.body.completed });
     try {
         const savedItem = await newItem.save();
         res.send(savedItem);

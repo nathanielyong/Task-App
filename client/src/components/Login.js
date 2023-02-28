@@ -29,16 +29,16 @@ const Login = (props) => {
             setError(data.message);
             return;
         }
-        localStorage.setItem('jwt_token', JSON.stringify(data));
+        localStorage.setItem('jwt_token', data.token);
         props.login();
         navigate('/');
     }
 
     return (
         <div className="login-container"> 
-            <h1>Login Up with Email</h1>
+            <h1>Login with Username/Email</h1>
             <Paper elevation={5} sx={{padding: '50px 70px'}}>
-                <form onSubmit={handleSubmit} id="login-form">
+                <form onSubmit={e => handleSubmit(e)} id="login-form">
                     <FormControl>
                         <FormLabel>Username/Email</FormLabel>
                         <TextField required variant="standard" error={error !== ''} helperText={error} onChange={e => setIdentifier(e.target.value)} onFocus={() => setError('')} />

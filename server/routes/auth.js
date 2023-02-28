@@ -6,29 +6,23 @@ const router = express.Router();
 
 router.route("/signup").post(async (req, res) => {
     try {
+        let user = await User.findOne({ username: req.body.username });
+        if (user)
+            return res.status(400).json({ username: 'Username taken' });
+
+        user = await User.findOne({ email: req.body.email });
+        if (user)
+            return res.status(400).json({ email: 'Email already registered' });
+
         password = await bcrypt.hash(req.body.password, 10);
-        const user = new User({
+        await User.create({
             username: req.body.username,
             email: req.body.email,
             password: password
         });
-        await user.save();
+        res.status(201).json({ message: 'user successfuly registered' });
     } catch (err) {
-        console.log(err);
-        if (err.errors) {
-            const errorMessages = {
-                username: (err.errors.hasOwnProperty('username') ? err.errors.username.properties.message : null),
-                email: (err.errors.hasOwnProperty('email') ? err.errors.email.properties.message : null)
-            }
-            res.status(400).json(errorMessages);
-        } else if (err.code === 11000) {
-            const field = Object.keys(err.keyPattern)[0];
-            const message = `${field} already in use`;
-            const errorMessage = {
-                [field]: message
-            }
-            res.status(400).json(errorMessage);
-        }
+        return res.status(500).json({ message: "Validation error" })
     }
 });
 
@@ -41,7 +35,7 @@ router.route("/login").post(async (req, res) => {
     if (!isMatch) {
         return res.status(401).send({ message: 'Username or password incorrect' });
     }
-    const token = jwt.sign({ username: user.username, email: user.email }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
+    const token = jwt.sign({ id: user._id, username: user.username, email: user.email }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
     res.status(201).json({ token });
 });
 

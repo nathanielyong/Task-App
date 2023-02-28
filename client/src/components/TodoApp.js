@@ -9,21 +9,41 @@ function TodoApp() {
   const [text, setText] = useState('');
   const [error, setError] = useState(null);
   const inputRef = useRef();
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer ' + localStorage.getItem('jwt_token')
+  };
 
   useEffect(() => {
-    fetchTodoItems();
+    const fetchTodoItems = async () => {
+      try {
+        const response =
+          await fetch(`http://localhost:5000/todoList/`, {
+            method: "GET",
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + localStorage.getItem('jwt_token')
+            }
+          });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch todo items');
+        }
+
+        const json = await response.json();
+        setTodoItems(json);
+      } catch (error) {
+        console.log(error);
+        setError(error.message);
+      }
+    }
+
+    if (localStorage.getItem('jwt_token') !== null) {
+      fetchTodoItems();
+    }
   }, []);
 
-  const fetchTodoItems = async () => {
-    const response = 
-      await fetch(`http://localhost:5000/todoList/`).catch(error => {
-        console.log(error);
-        return;
-      });
 
-    const json = await response.json();
-    setTodoItems(json);
-  }
 
   const editTodoHandler = async (e, id, newText, completed) => {
     e.preventDefault();
@@ -38,9 +58,7 @@ function TodoApp() {
     await fetch(`http://localhost:5000/todoList/update/${id}/`, {
       method: "PUT",
       body: JSON.stringify({ text: newText, completed: completed }),
-      headers: {
-        'Content-Type': 'application/json'
-      }
+      headers: headers
     }).catch(error => {
       console.log(error);
       return;
@@ -50,7 +68,8 @@ function TodoApp() {
   const deleteTodoHandler = async (id) => {
     setTodoItems([...todoItems].filter(todo => todo._id !== id));
     await fetch(`http://localhost:5000/todoList/delete/${id}/`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: headers
     }).catch(error => {
       console.log(error);
       return;
@@ -64,18 +83,16 @@ function TodoApp() {
 
     const newItem = { text: text.trim(), date: new Date(), completed: false };
 
-    const response = 
+    const response =
       await fetch(`http://localhost:5000/todoList/add/`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newItem),
+        headers: headers,
+        body: JSON.stringify(newItem)
       }).catch(error => {
         console.log(error);
         return;
       });
-    
+
     const newTodoItem = await response.json();
     await setTodoItems([newTodoItem, ...todoItems]);
     setText('');
@@ -92,9 +109,7 @@ function TodoApp() {
 
     await fetch(`http://localhost:5000/todoList/update/${id}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: headers,
       body: JSON.stringify(item)
     }).catch(error => {
       console.log(error);

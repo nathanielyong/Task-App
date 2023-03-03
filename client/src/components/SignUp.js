@@ -9,6 +9,8 @@ import './SignUp.css';
 
 const SignUp = () => {
     const navigate = useNavigate();
+    const port = process.env.PORT || 3000;
+    const url = `https://${window.location.hostname}:${port}/api`;
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -20,8 +22,10 @@ const SignUp = () => {
         e.preventDefault();
 
         let hasError = false;
-        if (username.length < 3) {
-            setUsernameError('Username must be between 3-30 characters');
+        // eslint-disable-next-line
+        const usernameRegex = /^[a-zA-Z0-9]+$/;
+        if (username.length < 3 || !usernameRegex.test(username)) {
+            setUsernameError('Username must be between 3-15 characters and only contain letters and numbers');
             hasError = true;
         }
         // eslint-disable-next-line
@@ -31,14 +35,14 @@ const SignUp = () => {
             hasError = true;
         }
         // eslint-disable-next-line
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+        const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*()-_=+{}[\]:;'",.<>?\/\\|~`]{8,}$/;
         if (!passwordRegex.test(password)) {
-            setPasswordError('Password must be minimum 8 characters and contain 1 uppercase letter, 1 lowercase letter and 1 number');
+            setPasswordError('Password must be minimum 8 characters and contain at least 1 letter and 1 number');
             hasError = true;
         }
         if (hasError) return;
 
-        const response = await fetch(`http://localhost:5000/signup/`, {
+        const response = await fetch(`${url}/signup/`, {
             method: "POST",
             body: JSON.stringify({ username: username, email: email, password: password }),
             headers: {
@@ -53,7 +57,6 @@ const SignUp = () => {
             if (data.email)
                 setEmailError(data.email);
         } else {
-            console.log('rerouting to login');
             navigate('/login');
         }
     }
@@ -69,7 +72,7 @@ const SignUp = () => {
                             helperText={usernameError}
                             onChange={e => setUsername(e.target.value)} onFocus={() => setUsernameError('')}
                             sx={{ width: "200px" }}
-                            inputProps={{ maxLength: 30 }}
+                            inputProps={{ maxLength: 15 }}
                         />
                     </FormControl>
                     <FormControl>

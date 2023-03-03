@@ -9,6 +9,8 @@ function TodoApp() {
   const [text, setText] = useState('');
   const [error, setError] = useState(null);
   const inputRef = useRef();
+  const port = process.env.PORT || 3000;
+  const url = `https://${window.location.hostname}:${port}/api`;
   const headers = {
     'Content-Type': 'application/json',
     'Authorization': 'Bearer ' + localStorage.getItem('jwt_token')
@@ -18,7 +20,7 @@ function TodoApp() {
     const fetchTodoItems = async () => {
       try {
         const response =
-          await fetch(`http://localhost:5000/todoList/`, {
+          await fetch(`${url}/todoList/`, {
             method: "GET",
             headers: {
               'Content-Type': 'application/json',
@@ -41,7 +43,7 @@ function TodoApp() {
     if (localStorage.getItem('jwt_token') !== null) {
       fetchTodoItems();
     }
-  }, []);
+  }, [port]);
 
 
 
@@ -55,24 +57,18 @@ function TodoApp() {
     items[index] = item;
     setTodoItems(items);
 
-    await fetch(`http://localhost:5000/todoList/update/${id}/`, {
+    await fetch(`${url}/todoList/update/${id}/`, {
       method: "PUT",
       body: JSON.stringify({ text: newText, completed: completed }),
       headers: headers
-    }).catch(error => {
-      console.log(error);
-      return;
     });
   }
 
   const deleteTodoHandler = async (id) => {
     setTodoItems([...todoItems].filter(todo => todo._id !== id));
-    await fetch(`http://localhost:5000/todoList/delete/${id}/`, {
+    await fetch(`${url}/todoList/delete/${id}/`, {
       method: "DELETE",
       headers: headers
-    }).catch(error => {
-      console.log(error);
-      return;
     });
   }
 
@@ -81,20 +77,23 @@ function TodoApp() {
     e.target.reset();
     inputRef.current.focus();
 
-    const newItem = { text: text.trim(), date: new Date(), completed: false };
+    const newItem = { text: text.trim(), date: Date.now(), completed: false };
 
     const response =
-      await fetch(`http://localhost:5000/todoList/add/`, {
+      await fetch(`${url}/todoList/add/`, {
         method: "POST",
         headers: headers,
         body: JSON.stringify(newItem)
-      }).catch(error => {
-        console.log(error);
-        return;
-      });
-
+      })
+    
     const newTodoItem = await response.json();
-    await setTodoItems([newTodoItem, ...todoItems]);
+    if (!response.ok) {
+      newItem._id = Date.now();
+      setTodoItems([newItem, ...todoItems]);
+      return;
+    }
+
+    setTodoItems([newTodoItem, ...todoItems]);
     setText('');
     setError(null);
   }
@@ -107,13 +106,10 @@ function TodoApp() {
     items[index] = item;
     setTodoItems(items);
 
-    await fetch(`http://localhost:5000/todoList/update/${id}`, {
+    await fetch(`${url}/todoList/update/${id}`, {
       method: "PUT",
       headers: headers,
       body: JSON.stringify(item)
-    }).catch(error => {
-      console.log(error);
-      return;
     });
   }
 
@@ -136,11 +132,11 @@ function TodoApp() {
   return (
     <>
       <div className="App-container">
+        { localStorage.getItem('jwt_token') === null && <h1>Login to save your changes</h1> }
         <section className='App-section1'>
           <form onSubmit={e => newTodoHandler(e)} id="add-todo-form" >
             <TextField inputRef={inputRef} type='text' id='todo-input' onInput={e => setText(e.target.value)} variant="outlined" multiline minRows={5} maxRows={10}
               placeholder='Enter new TODO item' inputProps={{ maxLength: 1000 }} autoFocus required />
-            <br></br>
             <Button id='add-todo-button' variant="contained" color="primary" type="submit" form="add-todo-form">Add TODO</Button>
           </form>
         </section>

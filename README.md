@@ -1,6 +1,8 @@
 # todo_app
 TODO App website built using MERN stack and dockerized. 
 
+Link to website: https://todoapp-nathan.herokuapp.com/
+
 Must create a .env file in the root folder and include variables:
 ATLAS_URI=(the URI to your MongoDB database)
 JWT_SECRET=(a random string for user authentication encryption, recommended at least 32 characters)

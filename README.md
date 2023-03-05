@@ -10,6 +10,7 @@ PORT=(the port you want to host the app on) (Optional)
 
 Then you can build the docker image using 
 > docker-compose build 
+
 then start the container with
 > docker-compose up
 

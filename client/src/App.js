@@ -13,7 +13,7 @@ function App() {
     const token = localStorage.getItem('jwt_token');
     if (token) 
       setIsLoggedIn(true);
-    console.log(window.location.hostname);
+    console.log(`${window.location.protocol}//${window.location.hostname}:${window.location.port}/api`);
   }, []);
 
   const login = () => {

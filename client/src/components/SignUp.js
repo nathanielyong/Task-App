@@ -9,8 +9,7 @@ import './SignUp.css';
 
 const SignUp = () => {
     const navigate = useNavigate();
-    const port = process.env.PORT || 3000;
-    const url = `https://${window.location.hostname}:${port}/api`;
+    const url = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/api`;
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');

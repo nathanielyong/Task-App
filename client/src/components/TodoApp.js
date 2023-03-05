@@ -9,8 +9,7 @@ function TodoApp() {
   const [text, setText] = useState('');
   const [error, setError] = useState(null);
   const inputRef = useRef();
-  const port = process.env.PORT || 3000;
-  const url = `https://${window.location.hostname}:${port}/api`;
+  const url = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/api`;
   const headers = {
     'Content-Type': 'application/json',
     'Authorization': 'Bearer ' + localStorage.getItem('jwt_token')
@@ -43,7 +42,7 @@ function TodoApp() {
     if (localStorage.getItem('jwt_token') !== null) {
       fetchTodoItems();
     }
-  }, [port]);
+  }, [url]);
 
 
 

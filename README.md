@@ -1,5 +1,5 @@
 # todo_app
-TODO App website built using MERN stack and dockerized. 
+TODO App website with user authentication built using MERN stack and dockerized. 
 
 Link to website: https://todoapp-nathan.herokuapp.com/
 

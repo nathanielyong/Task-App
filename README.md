@@ -1,5 +1,5 @@
-# todo_app
-TODO App website with user authentication built using MERN stack and dockerized. 
+# Task-App
+Task Reminder App website with user authentication built using MERN stack and dockerized. 
 
 Link to website: https://todoapp-nathan.herokuapp.com/
 
